@@ -1,0 +1,32 @@
+import type { LineDef } from '../types';
+
+export const tozai: LineDef = {
+  id: 'tozai',
+  name: '東京メトロ東西線',
+  color: '#009bbf',
+  stops: [
+    { at: '中野', toNext: 2 },
+    { at: '落合', toNext: 2 },
+    { at: '高田馬場', toNext: 2 },
+    { at: '早稲田', toNext: 2 },
+    { at: '神楽坂', toNext: 2 },
+    { at: '飯田橋', toNext: 2 },
+    { at: '九段下', toNext: 1 },
+    { at: '竹橋', toNext: 2 },
+    { at: '大手町', toNext: 1 },
+    { at: '日本橋', toNext: 1 },
+    { at: '茅場町', toNext: 2 },
+    { at: '門前仲町', toNext: 2 },
+    { at: '木場', toNext: 2 },
+    { at: '東陽町', toNext: 2 },
+    { at: '南砂町', toNext: 3 },
+    { at: '西葛西', toNext: 2 },
+    { at: '葛西', toNext: 2 },
+    { at: '浦安', toNext: 2 },
+    { at: '南行徳', toNext: 2 },
+    { at: '行徳', toNext: 2 },
+    { at: '妙典', toNext: 3 },
+    { at: '原木中山', toNext: 2 },
+    { at: '西船橋' },
+  ],
+};
