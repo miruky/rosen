@@ -1,0 +1,31 @@
+import type { LineDef } from '../types';
+
+export const hibiya: LineDef = {
+  id: 'hibiya',
+  name: '東京メトロ日比谷線',
+  color: '#b5b5ac',
+  stops: [
+    { at: '中目黒', toNext: 2 },
+    { at: '恵比寿', toNext: 3 },
+    { at: '広尾', toNext: 2 },
+    { at: '六本木', toNext: 2 },
+    { at: '神谷町', toNext: 1 },
+    { at: '虎ノ門ヒルズ', toNext: 2 },
+    { at: '霞ケ関', toNext: 2 },
+    { at: '日比谷', toNext: 1 },
+    { at: '銀座', toNext: 1 },
+    { at: '東銀座', toNext: 2 },
+    { at: '築地', toNext: 2 },
+    { at: '八丁堀', toNext: 1 },
+    { at: '茅場町', toNext: 2 },
+    { at: '人形町', toNext: 1 },
+    { at: '小伝馬町', toNext: 2 },
+    { at: '秋葉原', toNext: 1 },
+    { at: '仲御徒町', toNext: 2 },
+    { at: '上野', toNext: 2 },
+    { at: '入谷', toNext: 2 },
+    { at: '三ノ輪', toNext: 2 },
+    { at: '南千住', toNext: 3 },
+    { at: '北千住' },
+  ],
+};
