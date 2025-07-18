@@ -1,0 +1,587 @@
+:root {
+  --bg: #f6f7f5;
+  --surface: #ffffff;
+  --ink: #20242a;
+  --ink-muted: #5d6570;
+  --line: #dfe3e0;
+  --accent: #2c6e49;
+  --accent-ink: #ffffff;
+  --error: #b3362c;
+  --shadow: 0 1px 2px rgb(16 24 16 / 6%), 0 8px 24px rgb(16 24 16 / 7%);
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #15181d;
+  --surface: #1d2127;
+  --ink: #e8eaed;
+  --ink-muted: #9aa3ad;
+  --line: #30363d;
+  --accent: #62b287;
+  --accent-ink: #10130f;
+  --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 24px rgb(0 0 0 / 35%);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #15181d;
+    --surface: #1d2127;
+    --ink: #e8eaed;
+    --ink-muted: #9aa3ad;
+    --line: #30363d;
+    --accent: #62b287;
+    --accent-ink: #10130f;
+    --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 24px rgb(0 0 0 / 35%);
+    color-scheme: dark;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+/* ---- ヘッダー ---- */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  animation: rise-in 0.5s ease-out both;
+}
+
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  align-self: center;
+}
+
+.brand h1 {
+  font-size: 22px;
+  letter-spacing: 0.04em;
+}
+
+.tagline {
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+
+/* ---- レイアウト ---- */
+
+.app-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  padding: 24px;
+  min-height: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  animation: rise-in 0.5s ease-out 0.08s both;
+}
+
+.map-wrap {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  min-height: 480px;
+  animation: rise-in 0.5s ease-out 0.16s both;
+}
+
+/* ---- フォーム ---- */
+
+#route-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field label {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.field input {
+  font: inherit;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.field input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+#swap-button {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+
+.primary-button {
+  grid-column: 1 / -1;
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
+}
+
+.primary-button:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.primary-button:active {
+  transform: translateY(0);
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.icon-button:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.icon-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--ink-muted);
+  padding: 0 4px;
+}
+
+/* ---- 探索結果 ---- */
+
+.result:not(:empty) {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  animation: rise-in 0.35s ease-out both;
+}
+
+.route-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-bottom: 12px;
+}
+
+.route-summary strong {
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.route-legs {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.leg {
+  position: relative;
+  padding: 8px 0 8px 20px;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.leg-ride {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.leg-ride::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--line-color, var(--accent));
+}
+
+.leg-ride strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.leg-transfer::before,
+.leg-walk::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 10px;
+  bottom: 10px;
+  width: 0;
+  border-left: 2px dotted var(--ink-muted);
+}
+
+.leg-meta {
+  font-size: 12px;
+}
+
+.result-error {
+  color: var(--error);
+  font-size: 13px;
+}
+
+.result-hint {
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.result-hint + .result-hint,
+.result-error + .result-hint {
+  margin-top: 8px;
+}
+
+/* ---- 凡例 ---- */
+
+.legend h2 {
+  font-size: 13px;
+  color: var(--ink-muted);
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.legend ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.legend-item:hover {
+  border-color: var(--accent);
+}
+
+.legend-item.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+
+.legend-chip {
+  width: 14px;
+  height: 6px;
+  border-radius: 3px;
+}
+
+/* ---- 地図 ---- */
+
+.map {
+  position: absolute;
+  inset: 0;
+}
+
+.map svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+}
+
+.map svg:active {
+  cursor: grabbing;
+}
+
+.map-controls {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rosen-line {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity 0.25s ease;
+}
+
+.rosen-line.is-dimmed {
+  opacity: 0.15;
+}
+
+.rosen-walk {
+  stroke: var(--ink-muted);
+  stroke-width: 2;
+  stroke-dasharray: 3 4;
+}
+
+.rosen-dot {
+  fill: var(--surface);
+  stroke-width: 2;
+  transition: r 0.15s ease;
+}
+
+.rosen-dot-hub {
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+
+.rosen-station {
+  cursor: pointer;
+}
+
+.rosen-station:hover .rosen-dot,
+.rosen-station:focus-visible .rosen-dot {
+  r: 8;
+}
+
+.rosen-station:focus-visible {
+  outline: none;
+}
+
+.rosen-station:focus-visible .rosen-dot {
+  stroke: var(--accent);
+}
+
+.rosen-label {
+  font-size: 11px;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  user-select: none;
+}
+
+/* 経路表示中は背景を沈め、経路だけを浮かせる */
+.has-route .rosen-lines,
+.has-route .rosen-walks {
+  opacity: 0.18;
+}
+
+.has-route .rosen-labels,
+.has-route .rosen-stations {
+  opacity: 0.45;
+}
+
+.rosen-route-leg {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rosen-route-flow {
+  fill: none;
+  stroke: var(--surface);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2 14;
+  animation: route-flow 1.6s linear infinite;
+}
+
+.rosen-route-walk {
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-dasharray: 4 6;
+  stroke-linecap: round;
+}
+
+.rosen-route-end {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3;
+  animation: pop-in 0.3s ease-out both;
+}
+
+@keyframes route-flow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* ---- フッター ---- */
+
+.app-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-muted);
+  font-size: 12px;
+}
+
+/* ---- テーマアイコン ---- */
+
+.icon-moon {
+  display: none;
+}
+
+[data-theme='dark'] .icon-sun {
+  display: none;
+}
+
+[data-theme='dark'] .icon-moon {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .icon-sun {
+    display: none;
+  }
+
+  :root:not([data-theme='light']) .icon-moon {
+    display: block;
+  }
+}
+
+/* ---- モバイル ---- */
+
+@media (max-width: 880px) {
+  .app-main {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .map-wrap {
+    min-height: 60vh;
+  }
+
+  .tagline {
+    display: none;
+  }
+}
+
+/* ---- モーション抑制 ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .rosen-route-flow {
+    display: none;
+  }
+}
