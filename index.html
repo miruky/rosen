@@ -12,102 +12,163 @@
   </head>
   <body>
     <header class="app-header">
-      <div class="brand">
-        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-          <circle cx="16" cy="16" r="10" fill="none" stroke="#80c241" stroke-width="3" />
-          <path
-            d="M4 27 L28 5"
-            fill="none"
-            stroke="#f62e36"
-            stroke-width="3"
-            stroke-linecap="round"
-          />
-          <circle
-            cx="16"
-            cy="16"
-            r="3.2"
-            fill="var(--surface, #fff)"
-            stroke="currentColor"
-            stroke-width="1.6"
-          />
-        </svg>
-        <h1>rosen</h1>
-        <p class="tagline">東京主要6路線の路線図と乗換探索</p>
-      </div>
-      <button
-        id="theme-toggle"
-        class="icon-button"
-        type="button"
-        aria-label="配色テーマを切り替える"
-      >
-        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8" />
-          <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <div class="header-shell">
+        <a class="brand" href="./" aria-label="rosen トップ">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <circle cx="16" cy="16" r="10" fill="none" stroke="#80c241" stroke-width="3" />
             <path
-              d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5 5l1.7 1.7M17.3 17.3 19 19M19 5l-1.7 1.7M6.7 17.3 5 19"
+              d="M4 27 L28 5"
+              fill="none"
+              stroke="#f62e36"
+              stroke-width="3"
+              stroke-linecap="round"
             />
-          </g>
-        </svg>
-        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </button>
+            <circle
+              cx="16"
+              cy="16"
+              r="3.2"
+              fill="var(--surface, #fff)"
+              stroke="currentColor"
+              stroke-width="1.6"
+            />
+          </svg>
+          <span>
+            <strong>rosen</strong>
+            <small>Tokyo transit schematic</small>
+          </span>
+        </a>
+        <div class="network-summary" aria-label="収録情報">
+          <span><strong>101</strong> stations</span>
+          <span><strong>6</strong> lines</span>
+          <span><strong>1</strong> network</span>
+        </div>
+        <button
+          id="theme-toggle"
+          class="icon-button"
+          type="button"
+          aria-label="配色テーマを切り替える"
+          title="配色テーマを切り替える"
+        >
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <path
+                d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5 5l1.7 1.7M17.3 17.3 19 19M19 5l-1.7 1.7M6.7 17.3 5 19"
+              />
+            </g>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
     </header>
 
     <main class="app-main">
       <aside class="panel">
-        <form id="route-form" autocomplete="off">
-          <div class="field">
-            <label for="from-input">出発</label>
-            <input
-              id="from-input"
-              name="from"
-              list="station-list"
-              placeholder="例: 渋谷"
-              required
-            />
-          </div>
-          <button
-            type="button"
-            id="swap-button"
-            class="icon-button"
-            aria-label="出発と到着を入れ替える"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <g
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+        <div class="panel-heading">
+          <span>Route planner</span>
+          <h1>経路を組み立てる</h1>
+          <p>概算時分で最短経路を探索します。</p>
+        </div>
+        <section class="planner-section">
+          <form id="route-form" autocomplete="off">
+            <div class="route-fields">
+              <div class="route-rail" aria-hidden="true"><i></i><i></i></div>
+              <div class="field">
+                <label for="from-input">出発駅</label>
+                <input
+                  id="from-input"
+                  name="from"
+                  list="station-list"
+                  placeholder="例: 渋谷"
+                  required
+                />
+              </div>
+              <button
+                type="button"
+                id="swap-button"
+                class="swap-button"
+                aria-label="出発と到着を入れ替える"
+                title="出発と到着を入れ替える"
               >
-                <path d="M8 4v13M8 4 5 7M8 4l3 3" />
-                <path d="M16 20V7M16 20l-3-3M16 20l3-3" />
-              </g>
-            </svg>
-          </button>
-          <div class="field">
-            <label for="to-input">到着</label>
-            <input id="to-input" name="to" list="station-list" placeholder="例: 浅草" required />
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <g
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M8 4v13M8 4 5 7M8 4l3 3" />
+                    <path d="M16 20V7M16 20l-3-3M16 20l3-3" />
+                  </g>
+                </svg>
+              </button>
+              <div class="field">
+                <label for="to-input">到着駅</label>
+                <input
+                  id="to-input"
+                  name="to"
+                  list="station-list"
+                  placeholder="例: 浅草"
+                  required
+                />
+              </div>
+            </div>
+            <button type="submit" class="primary-button">
+              <span>経路を探索</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M5 12h13m-5-5 5 5-5 5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </form>
+          <datalist id="station-list"></datalist>
+          <div class="quick-routes" aria-label="代表的な経路">
+            <button type="button" data-from="渋谷" data-to="浅草">渋谷から浅草</button>
+            <button type="button" data-from="東京" data-to="六本木">東京から六本木</button>
+            <button type="button" data-from="新宿" data-to="上野">新宿から上野</button>
           </div>
-          <button type="submit" class="primary-button">経路を探索</button>
-        </form>
-        <datalist id="station-list"></datalist>
-        <p class="hint">地図上の駅を続けて2つ選んでも探索できます。</p>
-        <section id="result" class="result" aria-live="polite"></section>
-        <section class="legend" aria-label="路線凡例">
-          <h2>路線</h2>
+        </section>
+        <section id="result" class="result" aria-live="polite">
+          <div class="result-empty">
+            <span>Route not selected</span>
+            <p>駅を2つ選択すると、ここに行程を表示します。</p>
+          </div>
+        </section>
+        <section class="legend" aria-label="路線フィルター">
+          <header>
+            <span>Line focus</span>
+            <h2>路線表示</h2>
+          </header>
           <ul id="legend-list"></ul>
         </section>
       </aside>
 
       <section class="map-wrap" aria-label="路線図">
+        <header class="map-heading">
+          <div>
+            <span>Network 01</span>
+            <strong>東京主要路線</strong>
+          </div>
+          <div class="map-status">
+            <span id="route-status">全路線を表示中</span>
+            <strong id="map-zoom-level">100%</strong>
+          </div>
+        </header>
         <div id="map" class="map"></div>
         <div class="map-controls" role="group" aria-label="地図操作">
           <button id="zoom-in" class="icon-button" type="button" aria-label="拡大">
@@ -143,6 +204,17 @@
               >
                 <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
               </g>
+            </svg>
+          </button>
+          <button id="clear-route" class="icon-button" type="button" aria-label="経路を消去">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="m7 7 10 10M17 7 7 17"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
             </svg>
           </button>
         </div>
