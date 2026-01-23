@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 440" role="img" aria-label="rosenのアーキテクチャ図">
+  <title>rosenのアーキテクチャ: データ定義からネットワーク構築、探索・描画、UIまでの流れ</title>
+  <style>
+    .box { fill: #ffffff; stroke: #c9cfc9; rx: 10; }
+    .zone { fill: #f0f3f0; stroke: #dde3dd; rx: 14; }
+    .t { font-family: 'Hiragino Sans','Noto Sans JP',system-ui,sans-serif; fill: #20242a; }
+    .h { font-size: 14px; font-weight: 600; }
+    .s { font-size: 11px; fill: #5d6570; }
+    .zl { font-size: 11px; font-weight: 600; fill: #2c6e49; letter-spacing: 1px; }
+    .arrow { stroke: #5d6570; stroke-width: 1.6; fill: none; marker-end: url(#head); }
+    @media (prefers-color-scheme: dark) {
+      .box { fill: #1d2127; stroke: #3a4149; }
+      .zone { fill: #181c21; stroke: #2a3036; }
+      .t { fill: #e8eaed; }
+      .s { fill: #9aa3ad; }
+      .zl { fill: #62b287; }
+      .arrow { stroke: #9aa3ad; }
+    }
+  </style>
+  <defs>
+    <marker id="head" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0 0 L7 4 L0 8 Z" fill="#5d6570"/>
+    </marker>
+  </defs>
+
+  <rect class="zone" x="20" y="20" width="740" height="96"/>
+  <text class="t zl" x="36" y="44">データ(src/lib/data)</text>
+  <rect class="box" x="36" y="56" width="220" height="44"/>
+  <text class="t h" x="52" y="76">stations.ts</text>
+  <text class="t s" x="52" y="92">101駅の名称・読み・図上座標</text>
+  <rect class="box" x="272" y="56" width="230" height="44"/>
+  <text class="t h" x="288" y="76">6路線の定義</text>
+  <text class="t s" x="288" y="92">停車順・駅間時分・系統色・環状</text>
+  <rect class="box" x="518" y="56" width="226" height="44"/>
+  <text class="t h" x="534" y="76">徒歩連絡</text>
+  <text class="t s" x="534" y="92">別名駅どうしの改札外乗換</text>
+
+  <path class="arrow" d="M390 116 V146"/>
+
+  <rect class="box" x="240" y="150" width="300" height="48"/>
+  <text class="t h" x="256" y="171">buildNetwork(network.ts)</text>
+  <text class="t s" x="256" y="188">参照整合・所要分の検証つきでネットワーク構築</text>
+
+  <path class="arrow" d="M310 198 V214 H150 V238"/>
+  <path class="arrow" d="M390 198 V238"/>
+  <path class="arrow" d="M470 198 V214 H630 V238"/>
+
+  <rect class="box" x="40" y="242" width="220" height="64"/>
+  <text class="t h" x="56" y="264">route.ts</text>
+  <text class="t s" x="56" y="281">(駅, 路線)節点のダイクストラ法</text>
+  <text class="t s" x="56" y="296">乗換ペナルティ・徒歩連絡対応</text>
+  <rect class="box" x="280" y="242" width="220" height="64"/>
+  <text class="t h" x="296" y="264">render.ts</text>
+  <text class="t s" x="296" y="281">路線図SVGを文字列として生成</text>
+  <text class="t s" x="296" y="296">経路ハイライトの重ね描き</text>
+  <rect class="box" x="520" y="242" width="220" height="64"/>
+  <text class="t h" x="536" y="264">search.ts / format.ts</text>
+  <text class="t s" x="536" y="281">読み・前方一致の駅名検索</text>
+  <text class="t s" x="536" y="296">経路の日本語サマリ生成</text>
+
+  <path class="arrow" d="M150 306 V336"/>
+  <path class="arrow" d="M390 306 V336"/>
+  <path class="arrow" d="M630 306 V336"/>
+
+  <rect class="zone" x="20" y="340" width="740" height="80"/>
+  <text class="t zl" x="36" y="364">UI(main.ts / index.html)</text>
+  <rect class="box" x="36" y="374" width="708" height="32"/>
+  <text class="t s" x="52" y="394">経路フォームと候補表示・地図クリック選択・凡例の路線強調・パン/ズーム・ライト/ダーク切替・URLハッシュ共有</text>
+</svg>
