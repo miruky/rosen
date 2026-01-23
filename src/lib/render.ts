@@ -127,9 +127,14 @@ export function renderMap(net: Network): string {
   );
 }
 
-/** 探索結果を地図に重ねるハイライト。renderMap の #route-overlay に入れる */
+/**
+ * 探索結果を地図に重ねるハイライト。renderMap の #route-overlay に入れる。
+ * 乗車区間には data-leg(乗車区間の連番)を振り、行程リストのホバーから
+ * 該当区間だけを浮かび上がらせられるようにする。
+ */
 export function renderRouteOverlay(net: Network, route: RouteResult): string {
   const parts: string[] = [];
+  let rideIndex = 0;
   for (const leg of route.legs) {
     if (leg.kind === 'ride') {
       const points = leg.stations
@@ -138,10 +143,12 @@ export function renderRouteOverlay(net: Network, route: RouteResult): string {
           return `${s.x},${s.y}`;
         })
         .join(' ');
+      const tag = `data-leg="${rideIndex}"`;
       parts.push(
-        `<polyline class="rosen-route-leg" stroke="${leg.line.color}" points="${points}"/>`,
-        `<polyline class="rosen-route-flow" points="${points}"/>`,
+        `<polyline class="rosen-route-leg" ${tag} stroke="${leg.line.color}" points="${points}"/>`,
+        `<polyline class="rosen-route-flow" ${tag} points="${points}"/>`,
       );
+      rideIndex += 1;
     } else if (leg.kind === 'walk') {
       const a = net.stations.get(leg.from)!;
       const b = net.stations.get(leg.to)!;
