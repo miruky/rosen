@@ -73,6 +73,17 @@ describe('renderRouteOverlay', () => {
     const overlay = renderRouteOverlay(net, route);
     expect(overlay.match(/class="rosen-route-walk"/g)).toHaveLength(1);
   });
+
+  it('乗車区間に連番のdata-legを振る', () => {
+    const route = findRoute(net, '池袋', '浅草')!;
+    const rides = route.legs.filter((l) => l.kind === 'ride').length;
+    expect(rides).toBeGreaterThanOrEqual(2);
+    const overlay = renderRouteOverlay(net, route);
+    for (let i = 0; i < rides; i++) {
+      // 本体と流れ(flow)の2本に同じdata-legが付く
+      expect(overlay.match(new RegExp(`data-leg="${i}"`, 'g'))).toHaveLength(2);
+    }
+  });
 });
 
 describe('escapeXml', () => {
