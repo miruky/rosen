@@ -100,3 +100,46 @@ describe('findRoute(東京ネットワーク)', () => {
     }
   });
 });
+
+describe('findRoute の優先条件(prefer)', () => {
+  it('既定は所要最短(prefer: time と一致)', () => {
+    const def = findRoute(net, '池袋', '西船橋')!;
+    const time = findRoute(net, '池袋', '西船橋', { prefer: 'time' })!;
+    expect(def.totalMinutes).toBe(time.totalMinutes);
+    expect(def.transfers).toBe(time.transfers);
+  });
+
+  it('全駅対で time は最短時間・transfers は最少乗換を満たす', () => {
+    const names = [...net.stations.keys()];
+    const origin = '新宿';
+    for (const name of names) {
+      if (name === origin) continue;
+      const byTime = findRoute(net, origin, name, { prefer: 'time' })!;
+      const byTransfers = findRoute(net, origin, name, { prefer: 'transfers' })!;
+      // time の方が速い(以下)で、transfers の方が乗換が少ない(以下)
+      expect(byTime.totalMinutes, `${origin}→${name} 時間`).toBeLessThanOrEqual(
+        byTransfers.totalMinutes,
+      );
+      expect(byTransfers.transfers, `${origin}→${name} 乗換`).toBeLessThanOrEqual(byTime.transfers);
+    }
+  });
+
+  it('最速と乗換最少が分かれる区間が存在する', () => {
+    const names = [...net.stations.keys()];
+    let diverged = false;
+    outer: for (const a of names) {
+      for (const b of names) {
+        if (a === b) continue;
+        const byTime = findRoute(net, a, b, { prefer: 'time' })!;
+        const byTransfers = findRoute(net, a, b, { prefer: 'transfers' })!;
+        if (byTransfers.transfers < byTime.transfers) {
+          diverged = true;
+          // 乗換を減らした分、所要は延びる(または同じ)
+          expect(byTransfers.totalMinutes).toBeGreaterThanOrEqual(byTime.totalMinutes);
+          break outer;
+        }
+      }
+    }
+    expect(diverged).toBe(true);
+  });
+});
