@@ -23,6 +23,8 @@ const form = document.getElementById('route-form') as HTMLFormElement;
 const result = document.getElementById('result')!;
 const datalist = document.getElementById('station-list')!;
 const legendList = document.getElementById('legend-list')!;
+const routeStatus = document.getElementById('route-status')!;
+const zoomLevel = document.getElementById('map-zoom-level')!;
 
 mapHost.innerHTML = renderMap(net);
 const svg = mapHost.querySelector('svg')!;
@@ -51,8 +53,10 @@ legendList.addEventListener('click', (e) => {
   const active = svg.getAttribute('data-focus-line') === id;
   if (active) {
     svg.removeAttribute('data-focus-line');
+    routeStatus.textContent = '全路線を表示中';
   } else {
     svg.setAttribute('data-focus-line', id);
+    routeStatus.textContent = `${button.textContent?.trim() ?? '選択路線'}を強調中`;
   }
   for (const item of legendList.querySelectorAll('.legend-item')) {
     item.classList.toggle('is-active', !active && item === button);
@@ -96,9 +100,11 @@ function renderResult(route: RouteResult): void {
     })
     .join('');
   result.innerHTML =
-    `<p class="route-summary"><span>${escapeXml(route.from)} から ${escapeXml(route.to)}</span>` +
-    `<strong>${escapeXml(summarizeRoute(route))}</strong></p>` +
+    `<header class="route-summary"><span>Route found</span><p>${escapeXml(route.from)} から ${escapeXml(route.to)}</p>` +
+    `<dl><div><dt>所要</dt><dd>${escapeXml(formatMinutes(route.totalMinutes))}</dd></div>` +
+    `<div><dt>乗換</dt><dd>${route.transfers}回</dd></div></dl></header>` +
     `<ol class="route-legs">${items}</ol>`;
+  routeStatus.textContent = `${route.from}から${route.to}・${summarizeRoute(route)}`;
 }
 
 function runSearch(updateHash = true): void {
@@ -128,6 +134,25 @@ function runSearch(updateHash = true): void {
   }
 }
 
+function clearRoute(): void {
+  fromInput.value = '';
+  toInput.value = '';
+  overlay.innerHTML = '';
+  svg.classList.remove('has-route');
+  svg.removeAttribute('data-focus-line');
+  for (const item of legendList.querySelectorAll('.legend-item')) {
+    item.classList.remove('is-active');
+  }
+  for (const path of svg.querySelectorAll('.rosen-line')) {
+    path.classList.remove('is-dimmed');
+  }
+  result.innerHTML =
+    '<div class="result-empty"><span>Route not selected</span><p>駅を2つ選択すると、ここに行程を表示します。</p></div>';
+  routeStatus.textContent = '全路線を表示中';
+  history.replaceState(null, '', location.pathname + location.search);
+  fromInput.focus();
+}
+
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   runSearch();
@@ -137,6 +162,16 @@ document.getElementById('swap-button')!.addEventListener('click', () => {
   [fromInput.value, toInput.value] = [toInput.value, fromInput.value];
   if (fromInput.value && toInput.value) runSearch();
 });
+
+document.querySelectorAll<HTMLButtonElement>('.quick-routes [data-from]').forEach((button) => {
+  button.addEventListener('click', () => {
+    fromInput.value = button.dataset.from ?? '';
+    toInput.value = button.dataset.to ?? '';
+    runSearch();
+  });
+});
+
+document.getElementById('clear-route')!.addEventListener('click', clearRoute);
 
 // 地図上の駅選択: 1回目=出発、2回目=到着(続けて選ぶと出発から取り直し)
 function pickStation(name: string): void {
@@ -177,6 +212,7 @@ let view: ViewBox = { ...baseView };
 
 function applyView(): void {
   svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.width} ${view.height}`);
+  zoomLevel.textContent = `${Math.round((baseView.width / view.width) * 100)}%`;
 }
 
 /** クライアント座標を地図座標へ。letterbox(meet)のオフセットを補正する */
