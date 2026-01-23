@@ -122,6 +122,12 @@
                 />
               </div>
             </div>
+            <div class="prefer-toggle" role="group" aria-label="経路の優先条件">
+              <button type="button" data-prefer="time" class="is-active" aria-pressed="true">
+                最速
+              </button>
+              <button type="button" data-prefer="transfers" aria-pressed="false">乗換最少</button>
+            </div>
             <button type="submit" class="primary-button">
               <span>経路を探索</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -142,6 +148,13 @@
             <button type="button" data-from="東京" data-to="六本木">東京から六本木</button>
             <button type="button" data-from="新宿" data-to="上野">新宿から上野</button>
           </div>
+        </section>
+        <section class="recent" id="recent-section" hidden aria-label="最近検索した経路">
+          <header>
+            <span>Recent</span>
+            <button type="button" id="recent-clear" class="recent-clear">消去</button>
+          </header>
+          <ul id="recent-list"></ul>
         </section>
         <section id="result" class="result" aria-live="polite">
           <div class="result-empty">
