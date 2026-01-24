@@ -26,3 +26,18 @@ export function describeLeg(leg: Leg): string {
       return `${leg.from}から${leg.to}へ徒歩連絡・${formatMinutes(leg.minutes)}`;
   }
 }
+
+/**
+ * 行程をそのまま貼り付けられる複数行テキストにする。
+ * 1行目に区間、2行目にサマリ、続けて各脚を箇条で並べる。
+ */
+export function routeToText(route: RouteResult): string {
+  if (route.legs.length === 0) {
+    return `${route.from} → ${route.to}(同じ駅)`;
+  }
+  const lines = [`${route.from} → ${route.to}`, summarizeRoute(route)];
+  for (const leg of route.legs) {
+    lines.push(`- ${describeLeg(leg)}`);
+  }
+  return lines.join('\n');
+}
