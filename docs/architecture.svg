@@ -6,14 +6,14 @@
     .t { font-family: 'Hiragino Sans','Noto Sans JP',system-ui,sans-serif; fill: #20242a; }
     .h { font-size: 14px; font-weight: 600; }
     .s { font-size: 11px; fill: #5d6570; }
-    .zl { font-size: 11px; font-weight: 600; fill: #2c6e49; letter-spacing: 1px; }
+    .zl { font-size: 11px; font-weight: 600; fill: #c2453c; letter-spacing: 1px; }
     .arrow { stroke: #5d6570; stroke-width: 1.6; fill: none; marker-end: url(#head); }
     @media (prefers-color-scheme: dark) {
       .box { fill: #1d2127; stroke: #3a4149; }
       .zone { fill: #181c21; stroke: #2a3036; }
       .t { fill: #e8eaed; }
       .s { fill: #9aa3ad; }
-      .zl { fill: #62b287; }
+      .zl { fill: #e37a71; }
       .arrow { stroke: #9aa3ad; }
     }
   </style>
@@ -65,5 +65,5 @@
   <rect class="zone" x="20" y="340" width="740" height="80"/>
   <text class="t zl" x="36" y="364">UI(main.ts / index.html)</text>
   <rect class="box" x="36" y="374" width="708" height="32"/>
-  <text class="t s" x="52" y="394">経路フォームと候補表示・地図クリック選択・凡例の路線強調・パン/ズーム・ライト/ダーク切替・URLハッシュ共有</text>
+  <text class="t s" x="52" y="394">経路フォーム(最速/乗換最少)・候補表示・地図クリック選択と区間強調・パン/ズーム・検索履歴・テーマ切替・URLハッシュ共有</text>
 </svg>
