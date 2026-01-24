@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { describeLeg, formatMinutes, summarizeRoute } from './format';
+import { describeLeg, formatMinutes, routeToText, summarizeRoute } from './format';
 import { findRoute } from './route';
 import { tokyoNetwork } from './index';
 
@@ -39,5 +39,26 @@ describe('summarizeRoute / describeLeg', () => {
     const transfer = route.legs.find((l) => l.kind === 'transfer');
     expect(transfer).toBeDefined();
     expect(describeLeg(transfer!)).toMatch(/で.+へ乗換・\d+分/);
+  });
+});
+
+describe('routeToText', () => {
+  it('区間・サマリ・各脚を複数行で並べる', () => {
+    const route = findRoute(net, '東京', '新宿')!;
+    expect(routeToText(route)).toBe(
+      ['東京 → 新宿', '乗換0回・16分', '- JR中央線快速 東京から新宿まで4駅・16分'].join('\n'),
+    );
+  });
+
+  it('脚の数だけ箇条書きが並ぶ', () => {
+    const route = findRoute(net, '有楽町', '六本木')!;
+    const text = routeToText(route);
+    expect(text.split('\n')).toHaveLength(2 + route.legs.length);
+    expect(text.startsWith('有楽町 → 六本木\n')).toBe(true);
+  });
+
+  it('同一駅は同じ駅と明記する', () => {
+    const route = findRoute(net, '渋谷', '渋谷')!;
+    expect(routeToText(route)).toBe('渋谷 → 渋谷(同じ駅)');
   });
 });
