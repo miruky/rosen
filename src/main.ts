@@ -11,6 +11,7 @@ import {
   renderMap,
   renderRouteOverlay,
   resolveStation,
+  routeToText,
   summarizeRoute,
   tokyoNetwork,
 } from './lib';
@@ -37,6 +38,7 @@ const RECENT_KEY = 'rosen-recent';
 let prefer: RoutePreference =
   localStorage.getItem(PREFER_KEY) === 'transfers' ? 'transfers' : 'time';
 let recent: RecentEntry[] = parseRecent(localStorage.getItem(RECENT_KEY));
+let lastRoute: RouteResult | null = null;
 
 /** localStorageは無効化されている場合があるので失敗を握りつぶす */
 function save(key: string, value: string): void {
@@ -101,6 +103,7 @@ function showError(message: string, query?: string): void {
 }
 
 function renderResult(route: RouteResult): void {
+  lastRoute = route;
   if (route.legs.length === 0) {
     result.innerHTML = `<p class="result-error">出発と到着が同じ駅です。</p>`;
     return;
@@ -125,7 +128,11 @@ function renderResult(route: RouteResult): void {
   result.innerHTML =
     `<header class="route-summary"><span>Route found</span><p>${escapeXml(route.from)} から ${escapeXml(route.to)}</p>` +
     `<dl><div><dt>所要</dt><dd>${escapeXml(formatMinutes(route.totalMinutes))}</dd></div>` +
-    `<div><dt>乗換</dt><dd>${route.transfers}回</dd></div></dl></header>` +
+    `<div><dt>乗換</dt><dd>${route.transfers}回</dd></div></dl>` +
+    `<div class="route-actions">` +
+    `<button type="button" data-copy="text">経路をコピー</button>` +
+    `<button type="button" data-copy="link">共有リンク</button>` +
+    `<span class="route-copied" id="route-copied"></span></div></header>` +
     `<ol class="route-legs">${items}</ol>`;
   routeStatus.textContent = `${route.from}から${route.to}・${summarizeRoute(route)}`;
 }
@@ -152,6 +159,7 @@ function runSearch(updateHash = true, record = true): void {
   overlay.innerHTML = route.legs.length > 0 ? renderRouteOverlay(net, route) : '';
   overlay.classList.remove('is-spotlighting');
   svg.classList.toggle('has-route', route.legs.length > 0);
+  if (route.legs.length > 0) animateRouteDrawOn();
   if (record && route.legs.length > 0) pushRecent(from.name, to.name);
   if (updateHash) {
     const hash = `#r=${encodeURIComponent(from.name)}/${encodeURIComponent(to.name)}`;
@@ -279,6 +287,57 @@ result.addEventListener('mouseover', (e) => {
 });
 
 result.addEventListener('mouseleave', () => spotlightLeg(null));
+
+// ---- 行程・共有リンクのコピー ----
+
+function shareLink(route: RouteResult): string {
+  const hash = `#r=${encodeURIComponent(route.from)}/${encodeURIComponent(route.to)}`;
+  return `${location.origin}${location.pathname}${hash}`;
+}
+
+async function copyText(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+let copiedTimer = 0;
+function showCopied(message: string): void {
+  const el = document.getElementById('route-copied');
+  if (!el) return;
+  el.textContent = message;
+  window.clearTimeout(copiedTimer);
+  copiedTimer = window.setTimeout(() => {
+    el.textContent = '';
+  }, 2400);
+}
+
+result.addEventListener('click', (e) => {
+  const button = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-copy]');
+  if (!button || !lastRoute) return;
+  const text = button.dataset.copy === 'link' ? shareLink(lastRoute) : routeToText(lastRoute);
+  void copyText(text).then((ok) => showCopied(ok ? 'コピーしました' : 'コピーできませんでした'));
+});
+
+// ---- 経路ハイライトの描き起こし演出 ----
+
+function animateRouteDrawOn(): void {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const legs = overlay.querySelectorAll<SVGGeometryElement>('.rosen-route-leg');
+  legs.forEach((leg, i) => {
+    const length = leg.getTotalLength();
+    leg.style.transition = 'none';
+    leg.style.strokeDasharray = String(length);
+    leg.style.strokeDashoffset = String(length);
+    requestAnimationFrame(() => {
+      leg.style.transition = `stroke-dashoffset 0.6s cubic-bezier(0.22, 1, 0.36, 1) ${i * 0.08}s`;
+      leg.style.strokeDashoffset = '0';
+    });
+  });
+}
 
 // ---- キーボードショートカット(入力中は無効) ----
 
