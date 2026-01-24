@@ -573,6 +573,37 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
+.route-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.route-actions button {
+  padding: 6px 11px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-size: 11px;
+  transition:
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.route-actions button:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.route-copied {
+  color: var(--accent);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
 .route-legs {
   list-style: none;
   display: flex;
