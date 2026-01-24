@@ -1,18 +1,20 @@
 import './style.css';
 import {
+  addRecent,
   describeLeg,
   escapeXml,
   findRoute,
   formatMinutes,
   mapViewBox,
   matchStations,
+  parseRecent,
   renderMap,
   renderRouteOverlay,
   resolveStation,
   summarizeRoute,
   tokyoNetwork,
 } from './lib';
-import type { RouteResult, ViewBox } from './lib';
+import type { RecentEntry, RoutePreference, RouteResult, ViewBox } from './lib';
 
 const net = tokyoNetwork();
 
@@ -25,6 +27,25 @@ const datalist = document.getElementById('station-list')!;
 const legendList = document.getElementById('legend-list')!;
 const routeStatus = document.getElementById('route-status')!;
 const zoomLevel = document.getElementById('map-zoom-level')!;
+const preferToggle = document.querySelector<HTMLElement>('.prefer-toggle')!;
+const recentSection = document.getElementById('recent-section') as HTMLElement;
+const recentList = document.getElementById('recent-list')!;
+const recentClear = document.getElementById('recent-clear')!;
+
+const PREFER_KEY = 'rosen-prefer';
+const RECENT_KEY = 'rosen-recent';
+let prefer: RoutePreference =
+  localStorage.getItem(PREFER_KEY) === 'transfers' ? 'transfers' : 'time';
+let recent: RecentEntry[] = parseRecent(localStorage.getItem(RECENT_KEY));
+
+/** localStorageは無効化されている場合があるので失敗を握りつぶす */
+function save(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // プライベートモード等。保存できなくても操作は続行する
+  }
+}
 
 mapHost.innerHTML = renderMap(net);
 const svg = mapHost.querySelector('svg')!;
@@ -84,13 +105,15 @@ function renderResult(route: RouteResult): void {
     result.innerHTML = `<p class="result-error">出発と到着が同じ駅です。</p>`;
     return;
   }
+  let rideIndex = 0;
   const items = route.legs
     .map((leg) => {
       if (leg.kind === 'ride') {
         const from = leg.stations[0]!;
         const to = leg.stations[leg.stations.length - 1]!;
+        const idx = rideIndex++;
         return (
-          `<li class="leg leg-ride" style="--line-color:${leg.line.color}">` +
+          `<li class="leg leg-ride" data-leg="${idx}" style="--line-color:${leg.line.color}">` +
           `<strong>${escapeXml(leg.line.name)}</strong>` +
           `<span>${escapeXml(from)} から ${escapeXml(to)}</span>` +
           `<span class="leg-meta">${leg.stations.length - 1}駅・${formatMinutes(leg.minutes)}</span></li>`
@@ -107,7 +130,7 @@ function renderResult(route: RouteResult): void {
   routeStatus.textContent = `${route.from}から${route.to}・${summarizeRoute(route)}`;
 }
 
-function runSearch(updateHash = true): void {
+function runSearch(updateHash = true, record = true): void {
   const from = resolveStation(net, fromInput.value);
   const to = resolveStation(net, toInput.value);
   if (!from) {
@@ -120,14 +143,16 @@ function runSearch(updateHash = true): void {
   }
   fromInput.value = from.name;
   toInput.value = to.name;
-  const route = findRoute(net, from.name, to.name);
+  const route = findRoute(net, from.name, to.name, { prefer });
   if (!route) {
     showError('経路が見つかりませんでした。');
     return;
   }
   renderResult(route);
   overlay.innerHTML = route.legs.length > 0 ? renderRouteOverlay(net, route) : '';
+  overlay.classList.remove('is-spotlighting');
   svg.classList.toggle('has-route', route.legs.length > 0);
+  if (record && route.legs.length > 0) pushRecent(from.name, to.name);
   if (updateHash) {
     const hash = `#r=${encodeURIComponent(from.name)}/${encodeURIComponent(to.name)}`;
     history.replaceState(null, '', hash);
@@ -138,6 +163,7 @@ function clearRoute(): void {
   fromInput.value = '';
   toInput.value = '';
   overlay.innerHTML = '';
+  overlay.classList.remove('is-spotlighting');
   svg.classList.remove('has-route');
   svg.removeAttribute('data-focus-line');
   for (const item of legendList.querySelectorAll('.legend-item')) {
@@ -172,6 +198,98 @@ document.querySelectorAll<HTMLButtonElement>('.quick-routes [data-from]').forEac
 });
 
 document.getElementById('clear-route')!.addEventListener('click', clearRoute);
+
+// ---- 優先条件(最速 / 乗換最少) ----
+
+function applyPreferUI(): void {
+  for (const button of preferToggle.querySelectorAll<HTMLButtonElement>('[data-prefer]')) {
+    const on = button.dataset.prefer === prefer;
+    button.classList.toggle('is-active', on);
+    button.setAttribute('aria-pressed', String(on));
+  }
+}
+
+preferToggle.addEventListener('click', (e) => {
+  const button = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-prefer]');
+  if (!button) return;
+  const next: RoutePreference = button.dataset.prefer === 'transfers' ? 'transfers' : 'time';
+  if (next === prefer) return;
+  prefer = next;
+  save(PREFER_KEY, prefer);
+  applyPreferUI();
+  if (fromInput.value && toInput.value) runSearch();
+});
+
+// ---- 検索履歴 ----
+
+function renderRecent(): void {
+  recentSection.hidden = recent.length === 0;
+  recentList.innerHTML = recent
+    .map((entry) => {
+      const from = escapeXml(entry.from);
+      const to = escapeXml(entry.to);
+      return (
+        `<li><button type="button" data-from="${from}" data-to="${to}" ` +
+        `aria-label="${from}から${to}を再検索">` +
+        `<span>${from}</span>` +
+        `<svg viewBox="0 0 24 24" aria-hidden="true">` +
+        `<path d="M5 12h13m-5-5 5 5-5 5" fill="none" stroke="currentColor" ` +
+        `stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>` +
+        `<span>${to}</span></button></li>`
+      );
+    })
+    .join('');
+}
+
+function pushRecent(from: string, to: string): void {
+  recent = addRecent(recent, { from, to });
+  save(RECENT_KEY, JSON.stringify(recent));
+  renderRecent();
+}
+
+recentList.addEventListener('click', (e) => {
+  const button = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-from]');
+  if (!button) return;
+  fromInput.value = button.dataset.from ?? '';
+  toInput.value = button.dataset.to ?? '';
+  runSearch();
+});
+
+recentClear.addEventListener('click', () => {
+  recent = [];
+  save(RECENT_KEY, JSON.stringify(recent));
+  renderRecent();
+});
+
+applyPreferUI();
+renderRecent();
+
+// ---- 行程ホバーで地図の該当区間を強調 ----
+
+function spotlightLeg(index: string | null): void {
+  overlay.classList.toggle('is-spotlighting', index !== null);
+  for (const el of overlay.querySelectorAll('[data-leg]')) {
+    el.classList.toggle('is-spotlit', index !== null && el.getAttribute('data-leg') === index);
+  }
+}
+
+result.addEventListener('mouseover', (e) => {
+  const leg = (e.target as HTMLElement).closest<HTMLElement>('.leg-ride[data-leg]');
+  spotlightLeg(leg?.dataset.leg ?? null);
+});
+
+result.addEventListener('mouseleave', () => spotlightLeg(null));
+
+// ---- キーボードショートカット(入力中は無効) ----
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+  const target = e.target as HTMLElement;
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
+  e.preventDefault();
+  fromInput.focus();
+  fromInput.select();
+});
 
 // 地図上の駅選択: 1回目=出発、2回目=到着(続けて選ぶと出発から取り直し)
 function pickStation(name: string): void {
@@ -308,7 +426,7 @@ themeToggle.addEventListener('click', () => {
     document.documentElement.getAttribute('data-theme') ??
     (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   const next = current === 'dark' ? 'light' : 'dark';
-  localStorage.setItem(THEME_KEY, next);
+  save(THEME_KEY, next);
   applyTheme(next);
 });
 
@@ -324,7 +442,8 @@ function restoreFromHash(): void {
   if (net.stations.has(from) && net.stations.has(to)) {
     fromInput.value = from;
     toInput.value = to;
-    runSearch(false);
+    // 共有リンクで開いた経路は履歴に積まない(URLを更新もしない)
+    runSearch(false, false);
   }
 }
 
